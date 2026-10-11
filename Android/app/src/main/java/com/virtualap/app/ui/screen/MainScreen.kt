@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -106,9 +107,8 @@ fun MainScreen(
                     actions = {
                         IconButton(onClick = { vm.openLogSheet() }) {
                             Icon(
-                                imageVector = Icons.Default.Terminal,
-                                contentDescription = stringResource(R.string.view_logs),
-                                modifier = Modifier.size(18.dp)
+                                imageVector = Icons.AutoMirrored.Filled.Article,
+                                contentDescription = stringResource(R.string.view_logs)
                             )
                         }
                         IconButton(onClick = onNavigateToSettings) {
