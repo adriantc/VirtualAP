@@ -14,6 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
@@ -464,17 +466,85 @@ private fun UpstreamCard(vm: APViewModel) {
         } else {
             val autoLabel = stringResource(R.string.upstream_auto)
             val ifaces = vm.interfaces.filter { it.name != "ap0" }
-            DsDropdown(
-                label = stringResource(R.string.upstream_interface_label),
-                selected = vm.config.upstream,
-                options = listOf("auto") + ifaces.map { it.name },
-                displayName = { name ->
-                    if (name == "auto") autoLabel
-                    else ifaces.find { it.name == name }?.ip?.let { "$name ($it)" } ?: name
-                },
-                onSelect = { vm.config = vm.config.copy(upstream = it) },
-                enabled = editable
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DsDropdown(
+                    label = stringResource(R.string.upstream_interface_label),
+                    selected = vm.config.upstream,
+                    options = listOf("auto") + ifaces.map { it.name },
+                    displayName = { name ->
+                        if (name == "auto") autoLabel
+                        else ifaces.find { it.name == name }?.ip?.let { "$name ($it)" } ?: name
+                    },
+                    onSelect = vm::selectUpstream,
+                    modifier = Modifier.weight(1f),
+                    enabled = editable
+                )
+                IconButton(
+                    onClick = vm::refreshInterfaces,
+                    enabled = editable && !vm.isRefreshingInterfaces
+                ) {
+                    if (vm.isRefreshingInterfaces) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.refresh_interfaces)
+                        )
+                    }
+                }
+            }
+            if (vm.interfaceRefreshFailed) {
+                Text(
+                    text = stringResource(R.string.interface_refresh_failed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            val hasPreferredUpstream = vm.preferredUpstream.isNotBlank()
+            val preferenceEnabled = editable && (vm.config.upstream != "auto" || hasPreferredUpstream)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(
+                        value = hasPreferredUpstream,
+                        role = Role.Checkbox,
+                        enabled = preferenceEnabled,
+                        onValueChange = vm::setPreferredUpstream
+                    )
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.prefer_upstream_label),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (preferenceEnabled) MaterialTheme.colorScheme.onSurface
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    )
+                    Text(
+                        text = if (hasPreferredUpstream) {
+                            stringResource(R.string.prefer_upstream_enabled_desc, vm.preferredUpstream)
+                        } else {
+                            stringResource(R.string.prefer_upstream_desc)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = if (preferenceEnabled) 0.7f else 0.38f
+                        )
+                    )
+                }
+                Checkbox(
+                    checked = hasPreferredUpstream,
+                    enabled = preferenceEnabled,
+                    onCheckedChange = null
+                )
+            }
             Caption(stringResource(R.string.interface_upstream_desc))
         }
     }

@@ -44,6 +44,11 @@
     <string name="security_wpa3_hint">WPA3 may not work on every device. Some phones bring up the hotspot but clients fail to connect or get no IP, and older client devices may not join at all. Use WPA2-Personal for the best compatibility.</string>
     <string name="upstream_interface_label">Upstream Interface</string>
     <string name="upstream_auto">Auto (recommended)</string>
+    <string name="prefer_upstream_label">Prefer selected interface when available</string>
+    <string name="prefer_upstream_desc">Remember this interface and use Auto if it is unavailable.</string>
+    <string name="prefer_upstream_enabled_desc">%1$s is preferred when available. Auto is used otherwise.</string>
+    <string name="refresh_interfaces">Refresh interfaces</string>
+    <string name="interface_refresh_failed">Could not refresh interfaces. Try again.</string>
     <string name="upstream_card_title">Upstream</string>
     <string name="container_label">Container</string>
     <string name="container_upstream_desc">This Droidspaces container manages DHCP, DNS and NAT for the hotspot.</string>
@@ -76,6 +81,10 @@
     <string name="maintainer_name">ravindu644</string>
     <string name="maintainer_role">Maintainer</string>
     <string name="source_code">Source Code</string>
+    <string name="contributor_header">Contributor</string>
+    <string name="contributor_name">adriantc</string>
+    <string name="contributor_role">Contributor</string>
+    <string name="source_code_fork">Source Code Fork</string>
     <string name="ok">OK</string>
     <string name="unknown">Unknown</string>
 

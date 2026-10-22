@@ -15,6 +15,7 @@ object Constants {
     const val KEY_AP_CHANNEL = "ap_channel"
     const val KEY_AP_WIDTH = "ap_width"
     const val KEY_AP_UPSTREAM = "ap_upstream"
+    const val KEY_AP_PREFERRED_UPSTREAM = "ap_preferred_upstream"
     const val KEY_AP_GATEWAY = "ap_gateway"
     const val KEY_AP_DNS = "ap_dns"
     const val KEY_AP_HIDDEN = "ap_hidden"

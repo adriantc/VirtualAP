@@ -247,6 +247,21 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                 onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ravindu644/VirtualAP"))) }
             )
         }
+        SectionHeader(text = stringResource(R.string.contributor_header))
+        SettingsGroup(raised = true) {
+            LinkRow(
+                icon = Icons.Default.Person,
+                title = stringResource(R.string.contributor_name),
+                subtitle = stringResource(R.string.contributor_role),
+                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/adriantc"))) }
+            )
+            GroupDivider()
+            LinkRow(
+                icon = Icons.Default.Code,
+                title = stringResource(R.string.source_code_fork),
+                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/adriantc/VirtualAP"))) }
+            )
+        }
     }
 }
 

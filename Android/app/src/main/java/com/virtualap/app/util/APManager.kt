@@ -106,9 +106,9 @@ object APManager {
         Shell.cmd("${Backend.startAp} caps 2>/dev/null").exec().out.any { it.trim() == "ttl=1" }
     }
 
-    suspend fun getInterfaces(): List<NetworkIface> = withContext(Dispatchers.IO) {
+    suspend fun getInterfaces(): List<NetworkIface>? = withContext(Dispatchers.IO) {
         val result = Shell.cmd("${Backend.startAp} interfaces 2>/dev/null").exec()
-        if (!result.isSuccess) return@withContext emptyList()
+        if (!result.isSuccess) return@withContext null
         result.out.mapNotNull { line ->
             val parts = line.trim().split(":", limit = 2)
             if (parts.isEmpty() || parts[0].isBlank()) null

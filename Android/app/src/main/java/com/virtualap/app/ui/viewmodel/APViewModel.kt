@@ -27,7 +27,13 @@ class APViewModel(application: Application) : AndroidViewModel(application) {
     val phase get() = Hotspot.phase
     val actionLogs get() = Hotspot.actionLogs
     var config by mutableStateOf(APConfig.fromPrefs(prefs))
+    var preferredUpstream by mutableStateOf(prefs.apPreferredUpstream)
+        private set
     var interfaces by mutableStateOf<List<NetworkIface>>(emptyList())
+        private set
+    var isRefreshingInterfaces by mutableStateOf(false)
+        private set
+    var interfaceRefreshFailed by mutableStateOf(false)
         private set
     /** Running Droidspaces containers; empty = hide the integration UI entirely. */
     var containers by mutableStateOf<List<String>>(emptyList())
@@ -82,12 +88,51 @@ class APViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun applyInterfaceList(ifaces: List<NetworkIface>) {
+    private fun applyInterfaceList(ifaces: List<NetworkIface>?) {
+        // A failed query is not evidence that the saved upstream disappeared.
+        if (ifaces == null) return
+        interfaceRefreshFailed = false
         interfaces = ifaces
+        if (preferredUpstream.isNotBlank()) {
+            val preferred = if (ifaces.any { it.name == preferredUpstream }) preferredUpstream else "auto"
+            if (config.upstream != preferred) config = config.copy(upstream = preferred)
+            return
+        }
         // If the saved upstream is gone (e.g. WireGuard tunnel stopped), reset to
         // auto so a stale iface name isn't sent to the backend.
         if (config.upstream != "auto" && ifaces.none { it.name == config.upstream }) {
             config = config.copy(upstream = "auto")
+        }
+    }
+
+    fun selectUpstream(value: String) {
+        config = config.copy(upstream = value)
+        if (preferredUpstream.isNotBlank()) {
+            setPreferredUpstream(value != "auto")
+        }
+    }
+
+    fun setPreferredUpstream(enabled: Boolean) {
+        val preferred = if (enabled) config.upstream.takeUnless { it == "auto" } ?: return else ""
+        preferredUpstream = preferred
+        prefs.apPreferredUpstream = preferredUpstream
+    }
+
+    fun refreshInterfaces() {
+        if (isRefreshingInterfaces) return
+        viewModelScope.launch {
+            isRefreshingInterfaces = true
+            interfaceRefreshFailed = false
+            try {
+                val ifaces = APManager.getInterfaces()
+                if (ifaces == null) {
+                    interfaceRefreshFailed = true
+                } else {
+                    applyInterfaceList(ifaces)
+                }
+            } finally {
+                isRefreshingInterfaces = false
+            }
         }
     }
 

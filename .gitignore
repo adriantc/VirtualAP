@@ -7,6 +7,7 @@ backend/aarch64/*
 backend/armhf/*
 !backend/armhf/.gitkeep
 .DS_Store
+.idea/
 Android/.gradle/
 Android/app/build/
 Android/app/src/main/assets/
